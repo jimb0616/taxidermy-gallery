@@ -31,6 +31,15 @@
         --panel-ink: #4C4230;
         --shadow: 0 24px 48px -24px rgba(22, 19, 15, 0.35);
         --header-bg: rgba(246, 241, 232, 0.88);
+        --bat-wing: #4C3826;
+        --bat-wing-membrane: #6E5638;
+        --bat-body-light: #8A6A42;
+        --bat-body-dark: #5A4230;
+        --bat-face: #9C7A4C;
+        --bat-ear-inner: #B08D5A;
+        --bat-bone: #2E2116;
+        --bat-rim: #C2A15E;
+        --bat-filter: drop-shadow(0 3px 5px rgba(90, 66, 38, 0.38)) drop-shadow(0 1px 1px rgba(90, 66, 38, 0.28));
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -52,6 +61,15 @@
           --panel-ink: #D9CCAC;
           --shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.8);
           --header-bg: rgba(22, 19, 15, 0.88);
+          --bat-wing: #6B5136;
+          --bat-wing-membrane: #8A6F47;
+          --bat-body-light: #A08050;
+          --bat-body-dark: #6E5138;
+          --bat-face: #B08D5E;
+          --bat-ear-inner: #C2A06B;
+          --bat-bone: #3A2A1A;
+          --bat-rim: #C2A15E;
+          --bat-filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 4px rgba(194, 161, 94, 0.30));
         }
       }
 
@@ -447,6 +465,49 @@
       }
       .lb-inquire:hover { color: var(--brass); }
 
+      /* ---------- Bat ---------- */
+      .bat-layer {
+        position: fixed; inset: 0; z-index: 90;
+        pointer-events: none; overflow: hidden;
+      }
+      .bat {
+        position: absolute; left: 0; top: 0; width: 80px;
+        margin: 0; padding: 0; background: none; border: none;
+        appearance: none; -webkit-appearance: none;
+        cursor: default; pointer-events: none; opacity: 0;
+        transform-origin: 50% 78%;
+        will-change: transform;
+        filter: var(--bat-filter);
+        -webkit-tap-highlight-color: transparent;
+      }
+      .bat .bat-wing-main { fill: var(--bat-wing); }
+      .bat .bat-wing-membrane { fill: var(--bat-wing-membrane); }
+      .bat .bat-bone { stroke: var(--bat-bone); }
+      .bat .bat-rim { stroke: var(--bat-rim); fill: none; stroke-linecap: round; }
+      .bat .bat-ear-outer { fill: var(--bat-face); }
+      .bat .bat-ear-inner { fill: var(--bat-ear-inner); }
+      .bat .bat-muzzle { fill: var(--bat-ear-inner); }
+      .bat .bat-belly { fill: var(--bat-wing-membrane); }
+      .bat .bat-feet { stroke: var(--bat-bone); }
+      .bat .bat-stop-light { stop-color: var(--bat-body-light); }
+      .bat .bat-stop-dark { stop-color: var(--bat-body-dark); }
+      .bat .bat-stop-face { stop-color: var(--bat-face); }
+      .bat.is-perched { pointer-events: auto; cursor: pointer; }
+      .bat:focus-visible { outline: 1px solid var(--brass); outline-offset: 3px; }
+      .bat svg { display: block; width: 100%; height: auto; overflow: visible; }
+      @media (max-width: 640px) { .bat { width: 52px; } }
+      .bat .bat-breathe { transform-box: fill-box; transform-origin: 50% 100%; }
+      .bat.is-perched .bat-breathe { animation: bat-breathe 4.6s ease-in-out infinite; }
+      @keyframes bat-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.012, 1.02); } }
+      .bat .bat-ear { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.18s ease; }
+      .bat.bat-twitch .bat-ear-r { transform: rotate(9deg); }
+      .bat .bat-head { transform-box: fill-box; transform-origin: 50% 85%; transition: transform 0.45s ease; }
+      .bat.bat-tilt .bat-head { transform: rotate(4.5deg); }
+      @media (prefers-reduced-motion: reduce) {
+        .bat.is-perched .bat-breathe { animation: none; }
+        .bat .bat-ear, .bat .bat-head { transition: none; }
+      }
+
       /* ---------- Reveal ---------- */
       .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
       .reveal.in { opacity: 1; transform: none; }
@@ -461,9 +522,64 @@
     </style>
   </head>
   <body>
+    <div class="bat-layer">
+      <button class="bat" id="batEl" type="button" aria-label="Bat: tap to make it fly" tabindex="-1">
+        <svg viewBox="0 0 120 96" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="batBodyGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" class="bat-stop-light" />
+              <stop offset="100%" class="bat-stop-dark" />
+            </linearGradient>
+            <radialGradient id="batHeadGrad" cx="0.38" cy="0.32" r="0.85">
+              <stop offset="0%" class="bat-stop-face" />
+              <stop offset="100%" class="bat-stop-dark" />
+            </radialGradient>
+          </defs>
+          <g id="batWingL">
+            <path class="bat-wing-main" d="M50 30 C38 20 20 12 4 10 C10 18 14 25 16 32 C20 26 25 23 30 23 C28 29 27 34 28 39 C33 33 38 31 44 32 C42 37 41 41 42 45 C37 40 33 37 30 38 C35 42 44 44 48 42 C46 38 46 34 50 30 Z" />
+            <path class="bat-wing-membrane" d="M46 32 C36 23 22 16 10 13 C16 19 19 24 20 29 C24 25 28 23 32 23 C31 28 30 32 31 36 C35 31 39 30 43 30 C42 34 41 37 42 40 C38 36 35 34 32 35 C36 38 42 39 45 38 C44 36 44 34 46 32 Z" opacity="0.88" />
+            <path class="bat-bone" d="M47 34 C36 25 22 16 7 11" fill="none" stroke-width="1.1" opacity="0.65" />
+            <path class="bat-bone" d="M30 24 C32 28 33 32 33 36" fill="none" stroke-width="1" opacity="0.6" />
+            <path class="bat-bone" d="M44 32 C42 35 41 38 41 41" fill="none" stroke-width="1" opacity="0.6" />
+            <path class="bat-rim" d="M48 29 C36 19 20 11 5 9" stroke-width="2" opacity="0.95" />
+          </g>
+          <g id="batWingR">
+            <path class="bat-wing-main" d="M70 30 C82 20 100 12 116 10 C110 18 106 25 104 32 C100 26 95 23 90 23 C92 29 93 34 92 39 C87 33 82 31 76 32 C78 37 79 41 78 45 C83 40 87 37 90 38 C85 42 76 44 72 42 C74 38 74 34 70 30 Z" />
+            <path class="bat-wing-membrane" d="M74 32 C84 23 98 16 110 13 C104 19 101 24 100 29 C96 25 92 23 88 23 C89 28 90 32 89 36 C85 31 81 30 77 30 C78 34 79 37 78 40 C82 36 85 34 88 35 C84 38 78 39 75 38 C76 36 76 34 74 32 Z" opacity="0.88" />
+            <path class="bat-bone" d="M73 34 C84 25 98 16 113 11" fill="none" stroke-width="1.1" opacity="0.65" />
+            <path class="bat-bone" d="M90 24 C88 28 87 32 87 36" fill="none" stroke-width="1" opacity="0.6" />
+            <path class="bat-bone" d="M76 32 C78 35 79 38 79 41" fill="none" stroke-width="1" opacity="0.6" />
+            <path class="bat-rim" d="M72 29 C84 19 100 11 115 9" stroke-width="2" opacity="0.95" />
+          </g>
+          <g class="bat-breathe">
+            <path d="M52 66 L60 75 L68 66 L60 69 Z" fill="url(#batBodyGrad)" />
+            <path d="M60 24 C51 24 45 33 44.5 45 C44 58 50 70 60 70 C70 70 76 58 75.5 45 C75 33 69 24 60 24 Z" fill="url(#batBodyGrad)" />
+            <ellipse class="bat-belly" cx="60" cy="50" rx="7" ry="14" opacity="0.55" />
+            <path class="bat-rim" d="M68.5 33 C72 40 72.5 50 70 60" stroke-width="1.8" opacity="0.85" />
+            <path class="bat-rim" d="M51.5 33 C48 40 47.5 50 50 60" stroke-width="1.4" opacity="0.55" />
+            <g class="bat-head">
+              <g class="bat-ear bat-ear-l">
+                <path class="bat-ear-outer" d="M53 24 L50 8 L60 19 Z" />
+                <path class="bat-ear-inner" d="M53.5 21 L52.2 12.5 L57.5 18 Z" />
+                <path class="bat-rim" d="M50 8 L60 19" stroke-width="1.6" opacity="0.9" />
+              </g>
+              <g class="bat-ear bat-ear-r">
+                <path class="bat-ear-outer" d="M67 24 L70 8 L60 19 Z" />
+                <path class="bat-ear-inner" d="M66.5 21 L67.8 12.5 L62.5 18 Z" />
+                <path class="bat-rim" d="M70 8 L60 19" stroke-width="1.6" opacity="0.9" />
+              </g>
+              <circle cx="60" cy="27" r="8.5" fill="url(#batHeadGrad)" />
+              <ellipse class="bat-muzzle" cx="60" cy="30.5" rx="3.6" ry="2.6" opacity="0.9" />
+              <path class="bat-rim" d="M66.5 20.5 C68.5 23.5 69 26.5 68.3 29.5" stroke-width="1.7" opacity="0.9" />
+            </g>
+            <path class="bat-feet" d="M53.5 70 C53 72.5 51.8 74.2 50 75 M50 75 L47.5 74 M66.5 70 C67 72.5 68.2 74.2 70 75 M70 75 L72.5 74" fill="none" stroke-width="1.7" stroke-linecap="round" />
+          </g>
+        </svg>
+      </button>
+    </div>
     <header class="site">
       <div class="wrap header-in">
-        <a class="wordmark" href="#top">danielle <em>caruana</em></a>
+        <a class="wordmark" href="#top">danielle <em><span id="wm-last">caruana</span></em></a>
         <nav class="main" aria-label="Main navigation">
           <a href="#work">Work</a>
           <a href="#about">About</a>
@@ -1414,6 +1530,259 @@
             fallbackBox.scrollIntoView({ behavior: "smooth", block: "center" });
           }
         });
+      })();
+    </script>
+    <script>
+      (function () {
+        "use strict";
+
+        /* ---------- Bat: one flight in, a perch on the last name ---------- */
+        var batEl = document.getElementById("batEl");
+        var wingL = document.getElementById("batWingL");
+        var wingR = document.getElementById("batWingR");
+        var lastNameEl = document.getElementById("wm-last");
+        var headerEl = document.querySelector("header.site");
+        if (!batEl || !wingL || !wingR) return;
+
+        var reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+        var FEET = 75 / 120; /* feet point as a fraction of bat width */
+        var FOLD_R = -112;   /* wing rotation when folded along the body */
+
+        var perch = { x: 120, top: 16 };
+        function measurePerch() {
+          var r = lastNameEl ? lastNameEl.getBoundingClientRect() : null;
+          if (r && r.width > 0) { perch.x = r.left + r.width / 2; perch.top = r.top; return; }
+          var hr = headerEl ? headerEl.getBoundingClientRect() : null;
+          if (hr) { perch.x = hr.left + 56; perch.top = hr.top + hr.height * 0.28; }
+        }
+
+        var S = {
+          mode: "idle", t: 0, last: 0, phase: Math.PI / 2,
+          cx: -200, feetY: -200, bank: 0, dip: 0,
+          foldK: 0, scale: 1, frozenR: null,
+          poseAmp: 0, poseBase: 0,
+          keys: null, pose: null, dur: 0, unfold: false, flown: false,
+          foldFromScale: 1, foldFromBank: 0
+        };
+        var rafId = 0;
+        var idleTimer = 0;
+
+        function baseW() { return window.innerWidth <= 640 ? 52 : 80; }
+        function lerp(a, b, u) { return a + (b - a) * u; }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+        function smooth(u) { return u * u * (3 - 2 * u); }
+        function easeOut(u) { return 1 - Math.pow(1 - u, 3); }
+
+        function sampleTrack(track, t, prop) {
+          var i, a, b;
+          if (t <= track[0].t) return track[0][prop];
+          for (i = 1; i < track.length; i++) {
+            if (t <= track[i].t) {
+              a = track[i - 1]; b = track[i];
+              return lerp(a[prop], b[prop], (t - a.t) / (b.t - a.t));
+            }
+          }
+          return track[track.length - 1][prop];
+        }
+        function samplePos(keys, t) {
+          var i, a, b, u, last;
+          if (t <= keys[0].t) return { x: keys[0].x, y: keys[0].y };
+          for (i = 1; i < keys.length; i++) {
+            if (t <= keys[i].t) {
+              a = keys[i - 1]; b = keys[i];
+              u = smooth((t - a.t) / (b.t - a.t));
+              return { x: lerp(a.x, b.x, u), y: lerp(a.y, b.y, u) };
+            }
+          }
+          last = keys[keys.length - 1];
+          return { x: last.x, y: last.y };
+        }
+
+        function render() {
+          var w = baseW() * S.scale;
+          batEl.style.width = w.toFixed(1) + "px";
+          var x = S.cx - w / 2;
+          var y = S.feetY - FEET * w + S.dip;
+          batEl.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + S.bank.toFixed(2) + "deg)";
+          var flapR = (S.frozenR !== null) ? S.frozenR : (S.poseBase + Math.sin(S.phase) * S.poseAmp);
+          var R = lerp(flapR, FOLD_R, S.foldK);
+          var ws = lerp(1, 0.85, S.foldK).toFixed(3);
+          var droop = (S.foldK * 2).toFixed(2);
+          wingL.setAttribute("transform", "translate(0 " + droop + ") translate(47 34) rotate(" + R.toFixed(2) + ") scale(" + ws + ") translate(-47 -34)");
+          wingR.setAttribute("transform", "translate(0 " + droop + ") translate(73 34) rotate(" + (-R).toFixed(2) + ") scale(" + ws + ") translate(-73 -34)");
+        }
+
+        function tick(ts) {
+          if (!S.last) S.last = ts;
+          var dt = Math.min((ts - S.last) / 1000, 0.05);
+          S.last = ts;
+          S.t += dt;
+          if (S.mode === "flight") {
+            measurePerch();
+            var land = S.keys[S.keys.length - 1];
+            land.x = perch.x; land.y = perch.top + 2;
+            var ap = S.keys[S.keys.length - 2];
+            if (ap && ap.role === "approach") { ap.x = perch.x + 34; ap.y = Math.max(perch.top + 30, 46); }
+            var pos = samplePos(S.keys, S.t);
+            S.poseAmp = sampleTrack(S.pose, S.t, "amp");
+            S.poseBase = sampleTrack(S.pose, S.t, "base");
+            var freq = sampleTrack(S.pose, S.t, "freq");
+            S.bank = sampleTrack(S.pose, S.t, "tilt");
+            S.phase += Math.PI * 2 * freq * dt;
+            var bob = Math.sin(S.phase) * 2.3 * clamp(S.poseAmp / 34, 0, 1);
+            S.cx = pos.x; S.feetY = pos.y + bob;
+            if (S.unfold) {
+              var uu = clamp(S.t / 0.5, 0, 1);
+              S.foldK = 1 - easeOut(uu);
+              S.scale = lerp(0.52, 1, easeOut(uu));
+              if (uu >= 1) S.unfold = false;
+            }
+            render();
+            if (S.t >= S.dur) { startFold(); return; }
+            rafId = requestAnimationFrame(tick);
+          } else if (S.mode === "fold") {
+            var fk = clamp(S.t / 0.55, 0, 1);
+            S.foldK = easeOut(fk);
+            S.scale = lerp(S.foldFromScale, 0.52, S.foldK);
+            S.bank = lerp(S.foldFromBank, 0, fk);
+            S.dip = Math.sin(clamp(S.t / 0.95, 0, 1) * Math.PI) * 2.4;
+            S.cx = perch.x; S.feetY = perch.top + 2;
+            render();
+            if (S.t >= 0.95) { setPerched(); return; }
+            rafId = requestAnimationFrame(tick);
+          }
+        }
+
+        function startFlight(keys, pose, dur, unfold) {
+          S.keys = keys; S.pose = pose; S.dur = dur;
+          S.t = 0; S.last = 0; S.mode = "flight";
+          S.unfold = unfold; S.dip = 0; S.frozenR = null;
+          if (!unfold) { S.foldK = 0; S.scale = 1; }
+          batEl.classList.remove("is-perched");
+          batEl.style.opacity = "1";
+          cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(tick);
+        }
+
+        function startFold() {
+          measurePerch();
+          S.frozenR = S.poseBase + Math.sin(S.phase) * S.poseAmp;
+          S.foldFromScale = S.scale; S.foldFromBank = S.bank;
+          S.mode = "fold"; S.t = 0; S.last = 0;
+          rafId = requestAnimationFrame(tick);
+        }
+
+        function setPerched() {
+          S.mode = "perched"; S.foldK = 1; S.scale = 0.52; S.bank = 0; S.dip = 0;
+          measurePerch();
+          S.cx = perch.x; S.feetY = perch.top + 2;
+          render();
+          batEl.classList.add("is-perched");
+          batEl.removeAttribute("tabindex");
+          scheduleIdle();
+        }
+
+        function scheduleIdle() {
+          if (reduced) return;
+          window.clearTimeout(idleTimer);
+          idleTimer = window.setTimeout(function () {
+            if (S.mode !== "perched") return;
+            if (Math.random() < 0.5) {
+              batEl.classList.add("bat-twitch");
+              window.setTimeout(function () { batEl.classList.remove("bat-twitch"); }, 320);
+            } else {
+              batEl.classList.add("bat-tilt");
+              window.setTimeout(function () { batEl.classList.remove("bat-tilt"); }, 750);
+            }
+            scheduleIdle();
+          }, 8000 + Math.random() * 7000);
+        }
+
+        function flyIn() {
+          measurePerch();
+          var vw = window.innerWidth, vh = window.innerHeight, P = perch.top;
+          var keys = [
+            { t: 0, x: vw + 70, y: vh * 0.13 },
+            { t: 1.5, x: vw * 0.74, y: vh * 0.11 },
+            { t: 3.1, x: vw * 0.46, y: vh * 0.14 },
+            { t: 4.6, x: vw * 0.24, y: vh * 0.12 },
+            { t: 5.6, x: perch.x + 150, y: P + 40 },
+            { t: 6.4, x: perch.x + 34, y: Math.max(P + 30, 46), role: "approach" },
+            { t: 7.0, x: perch.x, y: P + 2 }
+          ];
+          var pose = [
+            { t: 0, amp: 34, base: 2, freq: 2.7, tilt: -2 },
+            { t: 1.3, amp: 34, base: 2, freq: 2.7, tilt: -2 },
+            { t: 1.8, amp: 2, base: 15, freq: 1.0, tilt: -1 },
+            { t: 2.9, amp: 2, base: 16, freq: 0.8, tilt: -1 },
+            { t: 3.4, amp: 31, base: 2, freq: 2.6, tilt: -2 },
+            { t: 5.5, amp: 32, base: 0, freq: 2.6, tilt: -3 },
+            { t: 6.1, amp: 45, base: 11, freq: 1.15, tilt: -8 },
+            { t: 7.0, amp: 46, base: 12, freq: 1.05, tilt: -7 }
+          ];
+          S.flown = true;
+          startFlight(keys, pose, 7.0, false);
+        }
+
+        function flyLoop() {
+          measurePerch();
+          var vw = window.innerWidth, P = perch.top, px = perch.x;
+          var keys = [
+            { t: 0, x: px, y: P + 2 },
+            { t: 0.55, x: px + 34, y: Math.max(P - 2, 34) },
+            { t: 1.3, x: Math.min(px + 175, vw - 64), y: 118 },
+            { t: 2.1, x: Math.min(px + 305, vw - 44), y: 182 },
+            { t: 2.9, x: px + 128, y: 104 },
+            { t: 3.6, x: px + 36, y: Math.max(P + 30, 46), role: "approach" },
+            { t: 4.2, x: px, y: P + 2 }
+          ];
+          var pose = [
+            { t: 0, amp: 30, base: 0, freq: 2.9, tilt: -3 },
+            { t: 1.2, amp: 31, base: 0, freq: 2.8, tilt: -3 },
+            { t: 1.55, amp: 2, base: 15, freq: 0.9, tilt: -1 },
+            { t: 2.3, amp: 2, base: 15, freq: 0.9, tilt: -1 },
+            { t: 2.65, amp: 30, base: 0, freq: 2.5, tilt: -3 },
+            { t: 3.3, amp: 32, base: 0, freq: 2.5, tilt: -4 },
+            { t: 3.7, amp: 45, base: 11, freq: 1.15, tilt: -8 },
+            { t: 4.2, amp: 46, base: 12, freq: 1.05, tilt: -7 }
+          ];
+          startFlight(keys, pose, 4.2, true);
+        }
+
+        batEl.addEventListener("click", function () {
+          if (reduced) return;
+          if (S.mode !== "perched") return;
+          window.clearTimeout(idleTimer);
+          flyLoop();
+        });
+
+        window.addEventListener("resize", function () {
+          if (S.mode === "perched") {
+            measurePerch();
+            S.cx = perch.x; S.feetY = perch.top + 2;
+            render();
+          }
+        });
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function () {
+            if (S.mode === "perched") {
+              measurePerch();
+              S.cx = perch.x; S.feetY = perch.top + 2;
+              render();
+            }
+          });
+        }
+
+        if (reduced) {
+          /* No flight, no idle motion: arrive already perched and folded. */
+          S.mode = "perched"; S.foldK = 1; S.scale = 0.52;
+          measurePerch();
+          S.cx = perch.x; S.feetY = perch.top + 2;
+          batEl.style.opacity = "1";
+          render();
+        } else {
+          window.setTimeout(function () { if (!S.flown) flyIn(); }, 700);
+        }
       })();
     </script>
   </body>
